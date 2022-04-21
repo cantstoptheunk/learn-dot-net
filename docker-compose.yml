@@ -1,0 +1,37 @@
+version: '3'
+
+networks:
+  docker-dotnet:
+    driver: bridge
+  
+services:
+  learndotnet:
+    build: .
+    image: learndotnet
+    container_name: learndotnet
+    ports:
+      - 8080:80
+    environment:
+      DB_CONNECTION_STRING: "host=postgres_image;port=5432;database=dotnetdb;username=admin;password:admin"
+    networks:
+      - docker-dotnet
+    depends_on:
+      - "postgres"
+  
+  postgres:
+    image: "postgres:12"
+    container_name: dotnet_postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - dotnet_db:/var/lib/postgresql/data
+#      - ./dbscripts/seed.sql :/docker-entrypoint-initdb.d/seed.sql
+    environment:
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "admin"
+      POSTGRES_DB: "dotnetdb"
+    networks:
+      - docker-dotnet
+    
+volumes:
+  dotnet_db: {}
